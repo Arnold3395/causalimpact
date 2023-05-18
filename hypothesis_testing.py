@@ -17,9 +17,11 @@ def normal_test(data):
     if type(data) == pd.core.frame.DataFrame:
         colnames = list(data.columns)
     elif type(data) == np.ndarray:
-        colnames = list(range(data.shape[1]))
+        data = pd.DataFrame(data)
+        colnames = list(data.columns)
     elif type(data) == list:
-        colnames = [0]
+        data = pd.DataFrame(data)
+        colnames = list(data.columns)
     else:
         print("Error: data type not supported!")
         return None
@@ -122,26 +124,3 @@ def t_test_matched_sample(x1,x2,alternative = 'two-sided'):
     return (t_statistic,p_value,cohen_d)
 
 
-def anova_test(data,formula):
-    '''
-    This function performs ANOVA test on the data.
-    The test includes:
-    1. ANOVA test
-    2. eta-squared
-    '''
-    # parameters check
-    if type(data) != pd.core.frame.DataFrame:
-        print("Error: data should be a pandas dataframe!")
-        return None
-    # assumption check
-    print("============= Assumptions Check ============")
-    print("sample size: %s"%len(data))
-    normal_test(data)
-    # calculate the statistic and p-value
-    model = ols(formula,data).fit()
-    aov_table = anova_lm(model,typ=2)
-    eta_squared = aov_table['sum_sq'][0]/(aov_table['sum_sq'][0]+aov_table['sum_sq'][1])
-    print("============== ANOVA Test Result ===========")
-    print(aov_table)
-    print("eta-squared: %.4f\n"%eta_squared)
-    return (aov_table,eta_squared)
